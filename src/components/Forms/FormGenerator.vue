@@ -135,26 +135,81 @@ const computedFormFields = computed(() => {
     return !field.condition || field.condition(formData);
   });
 });
-
 // Create a resolver for the form using zodResolver
 const resolver = ref();
+// Function to update the resolver
+function updateResolver(fields) {
+  const schema = fields.reduce((acc, field) => {
+    if (field.rules) {
+      acc[field.name] = field.rules;
+    } else {
+      acc[field.name] = z.optional(z.any()); // Add optional fields with a default rule
+    }
+    return acc;
+  }, {});
+
+  const zobject = props.beforeValidate(z.object(schema));
+
+  resolver.value = zodResolver(zobject);
+
+  console.log("resolver", zobject);
+}
+
+// // Watch for changes in the fields prop and update the resolver
+// watch(
+//   () => props.fields,
+//   (newFields) => {
+//     const schema = newFields.reduce((acc, field) => {
+//       if (field.rules) {
+//         acc[field.name] = field.rules;
+//       } else {
+//         acc[field.name] = z.optional(z.any()); // Add optional fields with a default rule
+//       }
+//       return acc;
+//     }, {});
+
+//     const zobject = props.beforeValidate(z.object(schema));
+
+//     resolver.value = zodResolver(zobject);
+
+//     console.log("resolver", zobject);
+//   },
+//   { immediate: true, deep: true }
+// );
 
 // Watch for changes in the fields prop and update the resolver
+
+// Reactive array to manage form fields
+const formFieldsReactive = reactive([...props.fields]);
+
+// Watch for changes in formFieldsReactive and update the resolver
+// watch(
+//   () => formFieldsReactive,
+//   (newFields) => {
+//     updateResolver(newFields);
+//   },
+//   { immediate: true, deep: true }
+// );
+
+// Watch for changes in formFieldsReactive and update formData
 watch(
   () => props.fields,
   (newFields) => {
-    const schema = newFields.reduce((acc, field) => {
-      if (field.rules) {
-        acc[field.name] = field.rules;
+    newFields.forEach((field) => {
+      if (!(field.name in formData)) {
+        console.log("Adding field", field.name);
+        formData[field.name] = props.initialValues[field.name] || "";
       }
-      return acc;
-    }, {});
+    });
+  },
+  { immediate: true, deep: true }
+);
 
-    const zobject = props.beforeValidate(z.object(schema));
-
-    // console.log("zobject", zobject, props.refine(zobject));
-
-    resolver.value = zodResolver(zobject);
+// Watch for changes in formFieldsReactive and update the resolver
+watch(
+  () => props.fields,
+  (newFields) => {
+    updateResolver(newFields);
   },
   { immediate: true, deep: true }
 );

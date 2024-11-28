@@ -26,7 +26,7 @@ const formFields = [
     name: 'firstName',
     label: 'First Name',
     placeholder: 'Enter your first name',
-    //   rules: z.string().min(1, 'Initials is required'),
+    //rules: z.optional(z.string().min(1, 'First Name is required')),
   },
   {
     type: 'text',

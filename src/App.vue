@@ -43,7 +43,7 @@ function addTextField() {
     name: `dynamicField${formFieldsReactive.length + 1}`,
     label: `Dynamic Field ${formFieldsReactive.length + 1}`,
     placeholder: "Enter text",
-    rules: z.string().min(1, "This field is required"),
+    rules: z.string().min(1, "Dynamic is required"),
   };
   formFieldsReactive.push(newField);
 }
@@ -52,6 +52,7 @@ function addTextField() {
 function handleBeforeValidate(schema) {
   return schema.refine(
     (data) => {
+      console.log("Data:", data);
       if (!data.firstName && data.lastName) {
         return false;
       }
@@ -70,6 +71,7 @@ async function fetchData() {
   const data = await new Promise((resolve) => {
     setTimeout(() => {
       resolve({
+        firstName: "",
         username: "john_doe",
         email: "john@example.com",
         password: "password123",
