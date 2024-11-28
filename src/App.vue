@@ -11,6 +11,7 @@
       <FormGenerator
         :fields="formFieldsReactive"
         :initialValues="initialValues"
+        :beforeValidate="handleBeforeValidate"
         @submit="handleFormSubmit"
       />
     </div>
@@ -45,6 +46,22 @@ function addTextField() {
     rules: z.string().min(1, "This field is required"),
   };
   formFieldsReactive.push(newField);
+}
+
+// Use case to show how to handle conditional validation
+function handleBeforeValidate(schema) {
+  return schema.refine(
+    (data) => {
+      if (!data.firstName && data.lastName) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "First name is required if last name is provided",
+      path: ["firstName"], // This will show the error message on the lastName field
+    }
+  );
 }
 
 async function fetchData() {

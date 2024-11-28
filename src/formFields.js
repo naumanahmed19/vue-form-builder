@@ -22,6 +22,26 @@ const formFields = [
     rules: z.string().min(1, 'Initials is required'),
   },
   {
+    type: 'text',
+    name: 'firstName',
+    label: 'First Name',
+    placeholder: 'Enter your first name',
+    //   rules: z.string().min(1, 'Initials is required'),
+  },
+  {
+    type: 'text',
+    name: 'lastName',
+    label: 'Last Name',
+    placeholder: 'Enter your last name',
+    rules: z.string().min(1, 'Last Name is required'),
+    refine: (data) => {
+      if (!data.firstName) {
+        return false
+      }
+      return true
+    },
+  },
+  {
     type: 'email',
     name: 'email',
     label: 'Email',

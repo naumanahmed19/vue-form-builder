@@ -80,7 +80,7 @@
       >
     </div>
     <div class="pt-3">
-      <Button type="submit" label="Submit" :disabled="!$form.valid" />
+      <Button type="submit" label="Submit" />
     </div>
   </Form>
 </template>
@@ -101,6 +101,10 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+  beforeValidate: {
+    type: Function,
+    default: (schema) => schema,
+  },
 });
 
 const emit = defineEmits(["submit"]);
@@ -114,6 +118,7 @@ const formData = reactive(
 );
 
 // // Watch for changes in the fields prop and update the formData
+// it helps to how correct validations on dynamic fields
 // watch(
 //   () => formData,
 //   (newValues) => {
@@ -132,33 +137,24 @@ const computedFormFields = computed(() => {
 });
 
 // Create a resolver for the form using zodResolver
-const resolver = ref(
-  zodResolver(
-    z.object(
-      props.fields.reduce((acc, field) => {
-        if (field.rules) {
-          acc[field.name] = field.rules;
-        }
-        return acc;
-      }, {})
-    )
-  )
-);
+const resolver = ref();
 
 // Watch for changes in the fields prop and update the resolver
 watch(
   () => props.fields,
   (newFields) => {
-    resolver.value = zodResolver(
-      z.object(
-        newFields.reduce((acc, field) => {
-          if (field.rules) {
-            acc[field.name] = field.rules;
-          }
-          return acc;
-        }, {})
-      )
-    );
+    const schema = newFields.reduce((acc, field) => {
+      if (field.rules) {
+        acc[field.name] = field.rules;
+      }
+      return acc;
+    }, {});
+
+    const zobject = props.beforeValidate(z.object(schema));
+
+    // console.log("zobject", zobject, props.refine(zobject));
+
+    resolver.value = zodResolver(zobject);
   },
   { immediate: true, deep: true }
 );
