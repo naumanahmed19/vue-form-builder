@@ -117,18 +117,6 @@ const formData = reactive(
   }, {})
 );
 
-// // Watch for changes in the fields prop and update the formData
-// it helps to how correct validations on dynamic fields
-// watch(
-//   () => formData,
-//   (newValues) => {
-//     Object.keys(newValues).forEach((key) => {
-//       formData[key] = newValues[key];
-//     });
-//   },
-//   { immediate: true, deep: true }
-// );
-
 // Compute the form fields based on the condition
 const computedFormFields = computed(() => {
   return props.fields.filter((field) => {
@@ -155,42 +143,8 @@ function updateResolver(fields) {
   console.log("resolver", zobject);
 }
 
-// // Watch for changes in the fields prop and update the resolver
-// watch(
-//   () => props.fields,
-//   (newFields) => {
-//     const schema = newFields.reduce((acc, field) => {
-//       if (field.rules) {
-//         acc[field.name] = field.rules;
-//       } else {
-//         acc[field.name] = z.optional(z.any()); // Add optional fields with a default rule
-//       }
-//       return acc;
-//     }, {});
-
-//     const zobject = props.beforeValidate(z.object(schema));
-
-//     resolver.value = zodResolver(zobject);
-
-//     console.log("resolver", zobject);
-//   },
-//   { immediate: true, deep: true }
-// );
-
-// Watch for changes in the fields prop and update the resolver
-
 // Reactive array to manage form fields
 const formFieldsReactive = reactive([...props.fields]);
-
-// Watch for changes in formFieldsReactive and update the resolver
-// watch(
-//   () => formFieldsReactive,
-//   (newFields) => {
-//     updateResolver(newFields);
-//   },
-//   { immediate: true, deep: true }
-// );
-
 // Watch for changes in formFieldsReactive and update formData
 watch(
   () => props.fields,
